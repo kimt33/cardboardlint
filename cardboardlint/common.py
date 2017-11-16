@@ -173,8 +173,8 @@ def matches_filefilter(filename, rules):
         A filename to be tested.
     rules : list
         A list of strings, starting with - (exclude) or + (include), followed by a glob
-        pattern. Each file is tested against the rules in order. The first matching rule
-        is applied. If no rules match, the file is excluded.
+        pattern. Each file is tested against the rules in order. If no rules match, the
+        file is excluded.
 
     Returns
     -------
@@ -190,6 +190,7 @@ def matches_filefilter(filename, rules):
     """
     re_dir = re.compile(r'(?<!\\)' + os.sep)
     filename_split = re_dir.split(filename)
+    accepted = []
     for rule in rules:
         pattern_split = re_dir.split(rule[1:].strip())
 
@@ -205,7 +206,9 @@ def matches_filefilter(filename, rules):
         # apply pattern
         if all(fnmatch(name, pattern)
                for name, pattern in zip(filename_split[::-1], pattern_split[::-1])):
-            return rule[0] == '+'
+            accepted.append(rule[0] == '+')
+
+    return len(accepted) > 0 and all(accepted)
 
 
 def get_offset_step(suffix):
